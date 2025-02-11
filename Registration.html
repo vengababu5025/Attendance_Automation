@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+        }
+        
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.933);
+            color: rgb(21, 138, 254);
+            backdrop-filter: blur(5px);
+        }
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        
+        .form-group-container {
+    display: flex;
+    gap: 30px; /* Adjust spacing between dropdowns */
+    justify-content: space-between;
+}
+
+.form-group-container .form-group {
+    flex: 1; /* Ensures both dropdowns take equal space */
+}
+
+
+        .flip-container {
+            width: 400px;
+            height: 500px;
+            perspective: 1000px;
+        }
+
+        .flipper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.9s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-container.flipped .flipper {
+            transform: rotateY(360deg);
+        }
+
+        .form-side {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .back {
+            transform: rotateY(360deg);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        
+        button {
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+
+        }
+
+        .toggle-buttons button {
+            width: 50%;
+            padding: 10px;
+            margin: 0 10px;
+            border: none;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: white;
+            font-size: 1rem;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        .toggle-buttons button:hover{
+             transform: scale(1.05);  /* Slightly enlarges button */
+    background: rgba(255, 255, 255, 0.5); 
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3); /* Optional shadow effect */
+        }
+        .toggle-buttons button.active {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body class="login-body">
+    <div class="login-container" style="height: 400px;">
+        <div class="toggle-buttons">
+            <button id="studentBtn" class="active">Student</button>
+            <button id="teacherBtn">Teacher</button>
+        </div>
+
+        <!-- Student Registration Form -->
+        <div class="flip-container" id="flipContainer">
+            <div class="flipper">
+                <div id="studentForm">
+                    <h1>Student Registration</h1>
+                    <form id="multiStepForm">
+                        <!-- Step 1 -->
+                        <div class="form-step active">
+                            <div class="form-group"><input type="text" id="firstName" placeholder="First Name" required></div>
+                            <div class="form-group"><input type="text" id="lastName" placeholder="Last Name" required></div>
+                            <div class="form-group"><input type="text" id="admissionNo" placeholder="Admission No" required></div>
+                            <button type="button" class="login-btn next">Next</button>
+                        </div>
+        
+                        <!-- Step 2 -->
+                        <div class="form-step">
+                            <div class="form-group"><input type="tel" id="phone" placeholder="Phone Number" required></div>
+                            <div class="form-group"><input type="email" id="email" placeholder="Email ID" required></div>
+                            <div class="form-group"><textarea id="address" placeholder="Address" required></textarea></div>
+                            <div class="form-group-container">
+                                <div class="form-group">
+                                    <select id="department" required>
+                                        <option value="">Select Branch</option>
+                                        <option>CSE</option>
+                                        <option>ECE</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <select id="section" required>
+                                        <option value="">Select Section</option>
+                                        <option>A</option>
+                                        <option>B</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="login-btn back">Back</button>
+                            <button type="button" class="login-btn next">Next</button>
+                        </div>
+        
+                        <!-- Step 3 -->
+                        <div class="form-step">
+                            <div class="form-group"><input type="password" id="password" placeholder="Password" required></div>
+                            <div class="form-group"><input type="password" id="confirmPassword" placeholder="Confirm Password" required></div>
+                            <button type="button" class="login-btn back">Back</button>
+                            <button type="submit" class="login-btn">Submit</button>
+                        </div>
+                    </form>
+                </div>
+        
+                <!-- Teacher Registration Form -->
+                <div id="teacherForm" style="display: none;">
+                    <h2>Teacher Registration</h2>
+                    <form id="teacherMultiStepForm">
+                        <!-- Group 1: First Name, Last Name, Department -->
+                        <div class="form-step active">
+                            <div class="form-group"><input type="text" id="teacherFirstName" placeholder="First Name" required pattern="[A-Za-z]+" title="Only alphabets allowed"></div>
+                            <div class="form-group"><input type="text" id="teacherLastName" placeholder="Last Name" required pattern="[A-Za-z]+" title="Only alphabets allowed"></div>
+                            <div class="form-group">
+                                <select id="teacherDepartment" required>
+                                    <option value="">Select Department</option>
+                                    <option value="CSE">CSE</option>
+                                    <option value="ECE">ECE</option>
+                                    <option value="IT">IT</option>
+                                    <option value="MECH">MECH</option>
+                                </select>
+                            </div>
+                            <button type="button" class="login-btn next">Next</button>
+                        </div>
+        
+                        <!-- Group 2: Username, Password, Confirm Password -->
+                        <div class="form-step">
+                            <div class="form-group"><input type="text" id="username" placeholder="Username" required pattern="[A-Za-z0-9]+" title="Only alphabets and numbers allowed"></div>
+                            <div class="form-group"><input type="password" id="teacherPassword" placeholder="Password" required></div>
+                            <div class="form-group"><input type="password" id="teacherConfirmPassword" placeholder="Confirm Password" required></div>
+                            <button type="button" class="login-btn back">Back</button>
+                            <button type="submit" class="login-btn">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const studentBtn = document.getElementById("studentBtn");
+            const teacherBtn = document.getElementById("teacherBtn");
+            const studentForm = document.getElementById("studentForm");
+            const teacherForm = document.getElementById("teacherForm");
+
+            // Toggle between Student and Teacher forms
+            studentBtn.addEventListener("click", () => {
+                studentForm.style.display = "block";
+                teacherForm.style.display = "none";
+                studentBtn.classList.add("active");
+                teacherBtn.classList.remove("active");
+            });
+
+            teacherBtn.addEventListener("click", () => {
+                studentForm.style.display = "none";
+                teacherForm.style.display = "block";
+                teacherBtn.classList.add("active");
+                studentBtn.classList.remove("active");
+            });
+
+            // Multi-step form logic for Student Registration
+            const studentSteps = document.querySelectorAll("#multiStepForm .form-step");
+            const studentNextButtons = document.querySelectorAll("#multiStepForm .next");
+            const studentBackButtons = document.querySelectorAll("#multiStepForm .back");
+            const studentFormElement = document.getElementById("multiStepForm");
+            let studentCurrentStep = 0;
+
+            function showStudentStep(step) {
+                studentSteps.forEach((formStep, index) => {
+                    formStep.classList.toggle("active", index === step);
+                });
+            }
+
+            function validateStudentCurrentStep() {
+                const inputs = studentSteps[studentCurrentStep].querySelectorAll("input[required], textarea[required], select[required]");
+                for (let input of inputs) {
+                    if (!input.value.trim()) {
+                        alert(`Please fill in the ${input.placeholder || input.id} field.`);
+                        input.focus();
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            studentNextButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    if (validateStudentCurrentStep()) {
+                        studentCurrentStep++;
+                        showStudentStep(studentCurrentStep);
+                    }
+                });
+            });
+
+            studentBackButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    if (studentCurrentStep > 0) {
+                        studentCurrentStep--;
+                        showStudentStep(studentCurrentStep);
+                    }
+                });
+            });
+
+            studentFormElement.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                if (!validateStudentCurrentStep()) return;
+
+                const password = document.getElementById("password").value;
+                const confirmPassword = document.getElementById("confirmPassword").value;
+
+                if (password !== confirmPassword) {
+                    alert("Passwords do not match! Please try again.");
+                    return;
+                }
+
+                alert("Student Registration successful!");
+                studentFormElement.reset();
+                showStudentStep(0); // Reset to the first step
+            });
+
+            // Multi-step form logic for Teacher Registration
+            const teacherSteps = document.querySelectorAll("#teacherMultiStepForm .form-step");
+            const teacherNextButtons = document.querySelectorAll("#teacherMultiStepForm .next");
+            const teacherBackButtons = document.querySelectorAll("#teacherMultiStepForm .back");
+            const teacherFormElement = document.getElementById("teacherMultiStepForm");
+            let teacherCurrentStep = 0;
+
+            function showTeacherStep(step) {
+                teacherSteps.forEach((formStep, index) => {
+                    formStep.classList.toggle("active", index === step);
+                });
+            }
+
+            function validateTeacherCurrentStep() {
+                const inputs = teacherSteps[teacherCurrentStep].querySelectorAll("input[required], select[required]");
+                for (let input of inputs) {
+                    if (!input.value.trim()) {
+                        alert(`Please fill in the ${input.placeholder || input.id} field.`);
+                        input.focus();
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            teacherNextButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    if (validateTeacherCurrentStep()) {
+                        teacherCurrentStep++;
+                        showTeacherStep(teacherCurrentStep);
+                    }
+                });
+            });
+
+            teacherBackButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    if (teacherCurrentStep > 0) {
+                        teacherCurrentStep--;
+                        showTeacherStep(teacherCurrentStep);
+                    }
+                });
+            });
+
+            teacherFormElement.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                if (!validateTeacherCurrentStep()) return;
+
+                const password = document.getElementById("teacherPassword").value;
+                const confirmPassword = document.getElementById("teacherConfirmPassword").value;
+
+                if (password !== confirmPassword) {
+                    alert("Passwords do not match! Please try again.");
+                    return;
+                }
+
+                alert("Teacher Registration Successful!");
+                teacherFormElement.reset();
+                showTeacherStep(0); // Reset to the first step
+            });
+
+            // Initialize forms
+            showStudentStep(studentCurrentStep);
+            showTeacherStep(teacherCurrentStep);
+        });
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const flipContainer = document.getElementById("flipContainer");
+            const studentBtn = document.getElementById("studentBtn");
+            const teacherBtn = document.getElementById("teacherBtn");
+
+            studentBtn.addEventListener("click", function () {
+                flipContainer.classList.remove("flipped");
+                studentBtn.classList.add("active");
+                teacherBtn.classList.remove("active");
+            });
+
+            teacherBtn.addEventListener("click", function () {
+                flipContainer.classList.add("flipped");
+                teacherBtn.classList.add("active");
+                studentBtn.classList.remove("active");
+            });
+        });
+    </script>
+</body>
+</html>

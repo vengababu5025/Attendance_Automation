@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #1b43f3;
+            --secondary: #0d00ff;
+            --accent: #4895ef;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --danger: #ff4d6d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--light);
+            min-height: 100vh;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            transform: scale(1.1);
+            background: var(--secondary);
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 280px;
+            background:var(--primary);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            left: -280px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar.open {
+            left: 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            width: 100%;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-btn i {
+            width: 25px;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(8px);
+        }
+
+        .sidebar-btn.active {
+            background: var(--accent);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ff002b;
+            transform: translateY(-2px);
+        }
+
+        .content {
+            flex: 1;
+            padding: 4rem 2rem;
+            transition: margin-left 0.4s ease;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            animation: fadeIn 0.4s ease;
+        }
+
+        h1{
+            color: black;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        h2 {
+            color: rgb(255, 255, 255);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            color: var(--dark);
+        }
+
+        #location {
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        #qrcode {
+            margin: 2rem auto;
+            padding: 1rem;
+            border: 2px solid var(--light);
+            border-radius: 12px;
+            max-width: 200px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section h1 {
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+        }
+
+        .section p {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(3px);
+            z-index: 998;
+            display: none;
+        }
+
+        .b1 {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .b1:hover {
+        background: var(--secondary);
+        transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 250px;
+            }
+            
+            .content {
+                padding: 2rem 1rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+
+            .menu-toggle {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .sidebar-btn {
+                padding: 1.2rem;
+            }
+        }
+        .tooltip-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .tooltip-container .tooltip {
+        visibility: hidden;
+        width: 120px;
+        background-color: black;
+        color: #fff;
+        text-align: center;
+        padding: 5px;
+        border-radius: 5px;
+        position: absolute;
+        top: -15px; /* Position above the button */
+        left: 700%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .tooltip-container:hover .tooltip {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    /* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background: white;
+    margin: 10% auto;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 50%;
+    max-width: 600px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.3s ease;
+}
+
+.close {
+    color: var(--dark);
+    float: right;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: var(--danger);
+}
+
+.dropdown-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.dropdown-container label {
+    margin-bottom: 0;
+}
+
+/* Grid Styles */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr); /* 10 columns */
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+
+
+
+.grid-item label {
+    cursor: pointer;
+}
+
+/* Add these styles to the existing CSS */
+.grid-item {
+    background: var(--light);
+    padding: 0.5rem;
+    text-align: center;
+    border-radius: 8px;
+    border: 1px solid var(--primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.grid-item input[type="checkbox"] {
+    display: none; /* Hide the actual checkbox */
+}
+
+.grid-item.selected {
+    background: var(--success);
+    color: white;
+    border-color: var(--success);
+}
+
+.grid-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+    </style>
+</head>
+<body>
+    <!-- Sidebar Toggle Button -->
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div>
+                <div class="sidebar-header">
+                    <h2>Faculty Portal</h2>
+                </div>
+                <nav>
+                    <button class="sidebar-btn" onclick="window.location.href='FacDash.html'">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </button>
+                    <button class="sidebar-btn" onclick="window.location.href='generateqr.html'">
+                        <i class="fas fa-qrcode"></i>
+                        Generate QR
+                    </button>
+
+                </nav>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content" id="content">
+            <div class="container">
+                <div class="tooltip-container">
+                    <button class="b1" style="width:fit-content;margin-left:550%;height:10px;" onclick="openModal()">
+                        <i class="fas fa-clipboard-check" style="font-size:20px;"></i>
+                    </button>
+                    <span class="tooltip">Post Attendance</span>
+                </div>
+                <h1>QR Code Generator</h1>
+
+                <label for="date">Select Date:</label>
+                <input type="date" id="date">
+
+                <label for="faculty">Faculty Name:</label>
+                <select id="faculty">
+                    <option value="Dr. Smith">Dr. Smith</option>
+                    <option value="Prof. Johnson">Prof. Johnson</option>
+                    <option value="Dr. Brown">Dr. Brown</option>
+                </select>
+
+                <label for="subject">Subject:</label>
+                <select id="subject">
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Physics">Physics</option>
+                    <option value="Chemistry">Chemistry</option>
+                </select>
+
+                <label for="hour">Hour:</label>
+                <select id="hour">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+
+                <button class= "b1" onclick="getLocation()">
+                    <i class="fas fa-location-dot"></i>
+                    Use Current Location
+                </button>
+                <p id="location"></p>
+                
+                <button class="b1" onclick="generateQR()">
+                    <i class="fas fa-qrcode"></i>
+                    Generate QR Code
+                </button>
+                
+                <div id="qrcode"></div>
+            </div>
+        </main>
+
+        <!-- Modal Structure -->
+<!-- Modal Structure -->
+<div id="attendanceModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Post Attendance</h2>
+        <div class="dropdown-container">
+            <label for="department">Department:</label>
+            <select id="department">
+                <option value="CSE">Computer Science</option>
+                <option value="ECE">Electronics</option>
+                <option value="ME">Mechanical</option>
+            </select>
+            <label for="section">Section:</label>
+            <select id="section">
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+            </select>
+        </div>
+        <button class="b1" onclick="submitAttendance()">Submit</button>
+        <div id="rollNumberGrid" class="grid-container"></div>
+    </div>
+</div>
+    </div>
+
+    <script>
+        const rollNumbersList=[]
+        // Sidebar Toggle Function
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+        }
+
+        // Logout Function
+        function logout() {
+            window.location.href = "login.html";
+        }
+
+        // QR Code Logic
+        let latitude = "";
+        let longitude = "";
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    latitude = position.coords.latitude;
+                    longitude = position.coords.longitude;
+                    document.getElementById("location").innerText = `Location: ${latitude}, ${longitude}`;
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function generateQR() {
+            let date = document.getElementById("date").value;
+            let faculty = document.getElementById("faculty").value;
+            let subject = document.getElementById("subject").value;
+            let hour = document.getElementById("hour").value;
+            
+            // Get selected roll numbers
+            const selectedRollNumbers = Array.from(document.querySelectorAll('.grid-item.selected'))
+                .map(item => item.textContent);
+            
+            let qrData = `Date: ${date}\nFaculty: ${faculty}\nSubject: ${subject}\nHour: ${hour}\nLocation: ${latitude}, ${longitude}\nRoll Numbers: ${rollNumbersList.join(', ')}`;
+            
+            document.getElementById("qrcode").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), qrData);
+            rollNumbersList=[]
+        }
+
+        // Data Structure
+        const departmentData = {
+            "CSE": {
+                "A": [1, 2, 4, 5, 6, 8, 9],
+                "B": [10, 11, 12, 13, 14],
+                "C": [15, 16, 17, 18, 19, 20]
+            },
+            "ECE": {
+                "A": [21, 22, 23, 24, 25],
+                "B": [26, 27, 28, 29, 30],
+                "C": [31, 32, 33, 34, 35]
+            },
+            "ME": {
+                "A": [36, 37, 38, 39, 40],
+                "B": [41, 42, 43, 44, 45],
+                "C": [46, 47, 48, 49, 50]
+            }
+        };
+
+        // Function to generate roll numbers
+        function generateRollNumber(department, section, roll) {
+            const deptCode = {
+                "CSE": "30",
+                "ECE": "40",
+                "ME": "50"
+            };
+            return `21kb1a${deptCode[department]}${roll.toString().padStart(2, '0')}`;
+        }
+
+        // Function to open the modal
+        function openModal() {
+            document.getElementById('attendanceModal').style.display = 'block';
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            document.getElementById('attendanceModal').style.display = 'none';
+        }
+
+        
+        // Function to submit attendance and display roll numbers
+        function submitAttendance() {
+            const department = document.getElementById('department').value;
+            const section = document.getElementById('section').value;
+            const rollNumbers = departmentData[department]?.[section] || [];
+            const gridContainer = document.getElementById('rollNumberGrid');
+            gridContainer.innerHTML = '';
+
+            rollNumbers.forEach(rollNumber => {
+                const formattedRollNumber = generateRollNumber(department, section, rollNumber);
+                rollNumbersList.push(formattedRollNumber);
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.textContent = formattedRollNumber;
+
+                // Create hidden checkbox
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `roll-${formattedRollNumber}`;
+                checkbox.value = formattedRollNumber;
+                checkbox.style.display = 'none';
+
+                // Add click handler
+                gridItem.addEventListener('click', function() {
+                    checkbox.checked = !checkbox.checked;
+                    this.classList.toggle('selected', checkbox.checked);
+                });
+
+                gridItem.appendChild(checkbox);
+                gridContainer.appendChild(gridItem);
+            });
+        }
+    </script>
+</body>
+</html>

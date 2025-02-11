@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1b43f3;
+            --secondary: #190dfa;
+            --accent: #4895ef;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --danger: #ff4d6d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--light);
+            min-height: 100vh;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            transform: scale(1.1);
+            background: var(--secondary);
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            left: -280px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar.open {
+            left: 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            width: 100%;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-btn i {
+            width: 25px;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(8px);
+        }
+
+        .sidebar-btn.active {
+            background: var(--accent);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ff002b;
+            transform: translateY(-2px);
+        }
+
+        .content {
+            flex: 1;
+            padding: 4rem 2rem;
+            transition: margin-left 0.4s ease;
+            min-height: 100vh;
+        }
+
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section h1 {
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+        }
+
+        .section p {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(3px);
+            z-index: 998;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 250px;
+            }
+            
+            .content {
+                padding: 2rem 1rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+
+            .menu-toggle {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .sidebar-btn {
+                padding: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="dashboard-container">
+        <aside class="sidebar" id="sidebar">
+            <div>
+                <div class="sidebar-header">
+                    <h2>Faculty Portal</h2>
+                </div>
+                <nav>
+                    <button class="sidebar-btn active" onclick="openSection('welcome')">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </button>
+                    <button class="sidebar-btn" onclick="window.location.href='generateqr.html'">
+                        <i class="fas fa-qrcode"></i>
+                        Generate QR
+                    </button>
+                    <button class="sidebar-btn" onclick="window.location.href='post-attendance.html'">
+                        <i class="fas fa-clipboard-check"></i>
+                        Post Attendance
+                    </button>
+                </nav>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </aside>
+
+        <main class="content" id="content">
+            <section id="welcome" class="section">
+                <h1 id="welcomeMessage"></h1>
+                <p>Manage your academic activities efficiently through this portal.</p>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Sidebar and Section Navigation
+        function openSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+            
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+        }
+
+        //Touch gestures for mobile
+        let touchStartX = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].screenX;
+            if (Math.abs(touchEndX - touchStartX) > 50) {
+                toggleSidebar();
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+        const userName = sessionStorage.getItem('loggedInUser');
+        if (userName) {
+            console.log(userName);
+            document.getElementById('welcomeMessage').textContent = `Welcome back, ${userName}! 👋`;
+        } else {
+            // Redirect to login if no user is found
+            window.location.href = 'index.html';
+        }
+    });
+        function logout() {
+            sessionStorage.clear(); // Clear session on logout
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

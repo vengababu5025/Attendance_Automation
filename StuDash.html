@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Students</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1b43f3;
+            --secondary: #190dfa;
+            --accent: #4895ef;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --danger: #ff4d6d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--light);
+            min-height: 100vh;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            transform: scale(1.1);
+            background: var(--secondary);
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            left: -280px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar.open {
+            left: 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            width: 100%;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-btn i {
+            width: 25px;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(8px);
+        }
+
+        .sidebar-btn.active {
+            background: var(--accent);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ff002b;
+            transform: translateY(-2px);
+        }
+
+        .content {
+            flex: 1;
+            padding: 4rem 2rem;
+            transition: margin-left 0.4s ease;
+            min-height: 100vh;
+        }
+
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section h1 {
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+        }
+
+        .section p {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(3px);
+            z-index: 998;
+            display: none;
+        }
+
+        /* QR Code Styles */
+        .qr-generator {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .generate-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: all 0.3s ease;
+            margin: 1.5rem 0;
+        }
+
+        .generate-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .qrcode-container {
+            margin: 2rem auto;
+            padding: 1rem;
+            border: 2px solid var(--light);
+            border-radius: 12px;
+            max-width: 200px;
+            text-align: center;
+        }
+
+        .timer {
+            text-align: center;
+            font-weight: bold;
+            color: var(--danger);
+            font-size: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 240px;
+            }
+
+            .content {
+                padding: 2rem 1rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+        }
+
+        .scanner-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        #videoPreview {
+            width: 100%;
+            border-radius: 12px;
+            border: 4px solid var(--primary);
+        }
+
+        .scan-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 4px solid var(--success);
+            border-radius: 8px;
+            background: rgba(76, 201, 240, 0.1);
+        }
+
+        .scan-message {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--dark);
+        }
+
+        .attendance-success {
+            color: var(--success);
+            font-weight: bold;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .attendance-list {
+            margin-top: 2rem;
+        }
+
+        .attendance-item {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .attendance-date {
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .attendance-status {
+            background: var(--success);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 400px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .close-modal {
+            cursor: pointer;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--dark);
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-body {
+            font-size: 1rem;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+
+        .modal-footer {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="dashboard-container">
+        <aside class="sidebar" id="sidebar">
+            <div>
+                <div class="sidebar-header">
+                    <h2>Student Portal</h2>
+                </div>
+                <nav>
+                    <button class="sidebar-btn active" onclick="openSection('welcome')">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </button>
+                    <button class="sidebar-btn" onclick="openSection('scanQR')">
+                        <i class="fas fa-camera"></i>
+                        Scan QR Code
+                    </button>
+                    <button class="sidebar-btn" onclick="window.location.href='attRec.html'">
+                        <i class="fas fa-clipboard-list"></i>
+                        View Attendance
+                    </button>
+                </nav>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </aside>
+
+        <main class="content" id="content">
+            <section id="welcome" class="section">
+                <h1 id="welcomeMessage"></h1>
+                <p>Manage your academic activities efficiently through this portal.</p>
+            </section>
+
+            <section id="scanQR" class="section" style="display: none;">
+                <h2>Scan QR Code</h2>
+                <div class="scanner-container">
+                    <video id="videoPreview"></video>
+                    <div class="scan-box"></div>
+                    <p class="scan-message">Align QR code within the frame to scan</p>
+                    <div id="studentInfo"></div>
+                    <div id="attendanceResult" class="attendance-success"></div>
+                </div>
+            </section>
+        </main>
+
+        <div id="successModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+                <p id="modalMessage"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar and Section Navigation
+        function openSection(sectionId) {
+            // Stop scanner when leaving scan section
+            if (sectionId !== 'scanQR' && scannerActive) {
+                stopScanner();
+            }
+
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+
+            // Start scanner when entering scan section
+            if (sectionId === 'scanQR') {
+                startScanner();
+            }
+
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+        }
+        // Sample student data
+
+        // QR Scanner Logic
+        let videoElement = document.getElementById('videoPreview');
+        let scannerActive = false;
+        let mediaStream = null;
+
+        async function startScanner() {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment" }
+                });
+                videoElement.srcObject = mediaStream;
+                videoElement.play();
+                requestAnimationFrame(scanQR);
+                scannerActive = true;
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                alert('Camera access denied. Please enable camera permissions.');
+            }
+        }
+
+        function stopScanner() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+            scannerActive = false;
+
+        }
+
+        function scanQR() {
+            if (!scannerActive) return;
+
+            //console.log("student details"+stud);
+            if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+                const canvas = document.createElement('canvas');
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                console.log(imageData);
+                console.log(typeof jsQR + "dshfse");
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                console.log(code)
+                if (code) {
+                    handleScannedCode(code.data);
+                }
+            }
+            requestAnimationFrame(scanQR);
+        }
+
+        function handleScannedCode(data) {
+            try {
+                showAttendanceResult("result");
+                console.log("Scanned QR Data:", data);
+
+                // Store student data in localStorage
+                const students = [
+                    { "date": "2025-02-11", "subject": "Mathematics", "faculty": "Dr. Smith", "name": "vengababu" },
+                    { "date": "2025-02-12", "subject": "Physics", "faculty": "Dr. Johnson", "Admin": "Admin" }
+                ];
+                localStorage.setItem('students', JSON.stringify(students));
+
+                // Retrieve student data and parse it
+                const stud = JSON.parse(localStorage.getItem('students'));
+                console.log("Stored Students List:", stud);
+
+                // Extract Date from the scanned text
+                const dateMatch = data.match(/Date:\s*([\d-]+)/i);
+                if (!dateMatch) {
+                    console.error("Could not find Date in QR code data.");
+                    showAttendanceResult(`Invalid QR Code: ${data}`, false);
+                    return;
+                }
+
+                const scannedDate = dateMatch[1]; // Extracted date (YYYY-MM-DD format)
+                console.log("Extracted Date:", scannedDate);
+
+                // Find a matching entry based on the scanned date
+                const matchedEntry = stud.find(entry => entry.date === scannedDate);
+
+                if (matchedEntry) {
+                    console.log("metched enrty")
+                    displayStudentInfo(matchedEntry);
+                    postAttendance(scannedDate);
+                } else {
+                    showAttendanceResult("Date not found!", false);
+                }
+            } catch (error) {
+                console.error("Error handling QR Code:", error);
+                showAttendanceResult(`Invalid QR Code: ${data}`, false);
+            }
+        }
+
+        function displayStudentInfo(student) {
+            console.log("student name: " + student.name)
+            const studentInfoDiv = document.getElementById('studentInfo');
+            studentInfoDiv.innerHTML = `
+                <p>${student.name}vengababu vengababu vengababu vengababu</p>
+            `;
+        }
+
+        function postAttendance(rollNumber) {
+            // Retrieve attendance data from localStorage
+            let attendance = JSON.parse(localStorage.getItem('attendance')) || [];
+
+            // Check if attendance for this roll number is already marked
+            if (!attendance.includes(rollNumber)) {
+                attendance.push(rollNumber);
+                localStorage.setItem('attendance', JSON.stringify(attendance));
+                showAttendanceResult(`Attendance marked for roll number ${rollNumber}`, true);
+                stopScanner(); // Stop the scanner after successful attendance posting
+            } else {
+                showAttendanceResult(`Attendance already marked for roll number ${rollNumber}`, false);
+            }
+        }
+        function showAttendanceResult(message, success) {
+            const resultDiv = document.getElementById('attendanceResult');
+            resultDiv.textContent = message;
+            resultDiv.style.color = success ? 'var(--success)' : 'var(--danger)';
+
+            if (success) {
+                // Display the success message in the modal
+                const modal = document.getElementById('successModal');
+                const modalMessage = document.getElementById('modalMessage');
+                modalMessage.textContent = message;
+                modal.style.display = 'flex';
+
+                // Close the modal and redirect to the home page after 2 seconds
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    openSection('welcome'); // Redirect to the home page
+                }, 2000);
+            }
+        }
+        function closeModal() {
+            const modal = document.getElementById('successModal');
+            modal.style.display = 'none';
+        }
+
+        // Update openSection function to handle scanner
+        function openSection(sectionId) {
+            // Stop scanner when leaving scan section
+            if (sectionId !== 'scanQR' && scannerActive) {
+                stopScanner();
+            }
+
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+
+            // Start scanner when entering scan section
+            if (sectionId === 'scanQR') {
+                startScanner();
+            }
+
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const userName = sessionStorage.getItem('loggedInUser');
+            if (userName) {
+                console.log(userName);
+                document.getElementById('welcomeMessage').textContent = `Welcome back, ${userName}! 👋`;
+            } else {
+                // Redirect to login if no user is found
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Update logout to stop scanner
+        function logout() {
+            sessionStorage.clear(); // Clear session on logout
+            if (scannerActive) stopScanner();
+            window.location.href = 'login.html';
+        }
+
+
+
+    </script>
+
+    <script src="https://unpkg.com/jsqr"></script>
+
+</body>
+
+</html>

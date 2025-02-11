@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Registration</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        select {
+            width: 105%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.933);
+            color: rgb(21, 138, 254);
+            backdrop-filter: blur(5px);
+        }
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <h2>Teacher Registration</h2>
+
+        <form id="teacherForm">
+            <!-- Group 1: First Name, Last Name, Department -->
+            <div class="form-step active">
+              
+                <input type="text" id="firstName" placeholder="First Name" required pattern="[A-Za-z]+" title="Only alphabets allowed">
+    
+              
+                <input type="text" id="lastName" placeholder="Last Name" required pattern="[A-Za-z]+" title="Only alphabets allowed">
+    
+              
+                <select id="department" required>
+                    <option value="">Select Department</option>
+                    <option value="CSE">CSE</option>
+                    <option value="ECE">ECE</option>
+                    <option value="IT">IT</option>
+                    <option value="MECH">MECH</option>
+                </select>
+    
+                <button type="button" class="login-btn">Next</button>
+            </div>
+    
+            <!-- Group 2: Username, Password, Confirm Password -->
+            <div class="form-step">
+              
+                <input type="text" id="username" placeholder="Username" required pattern="[A-Za-z0-9]+" title="Only alphabets and numbers allowed">
+    
+              
+                <input type="password" id="password" placeholder="Password" required>
+    
+             
+                <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+    
+                <button type="button" class="login-btn back">Back</button>
+                <button type="submit" class="login-btn">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const steps = document.querySelectorAll(".form-step");
+            const nextButton = document.querySelector(".next");
+            const backButton = document.querySelector(".back");
+            const form = document.getElementById("teacherForm");
+            let currentStep = 0;
+
+            function showStep(step) {
+                steps.forEach((formStep, index) => {
+                    formStep.classList.toggle("active", index === step);
+                });
+            }
+
+            nextButton.addEventListener("click", () => {
+                if (validateCurrentStep()) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
+            });
+
+            backButton.addEventListener("click", () => {
+                if (currentStep > 0) {
+                    currentStep--;
+                    showStep(currentStep);
+                }
+            });
+
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+                if (!validateCurrentStep()) return;
+
+                const password = document.getElementById("password").value;
+                const confirmPassword = document.getElementById("confirmPassword").value;
+
+                if (password !== confirmPassword) {
+                    alert("Passwords do not match! Please try again.");
+                    return;
+                }
+
+                alert("Teacher Registration Successful!");
+                form.reset();
+                showStep(0); // Reset to the first step
+            });
+
+            function validateCurrentStep() {
+                const inputs = steps[currentStep].querySelectorAll("input[required], select[required]");
+                for (let input of inputs) {
+                    if (!input.value.trim()) {
+                        alert(`Please fill in the ${input.placeholder || input.id} field.`);
+                        input.focus();
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            showStep(currentStep);
+        });
+    </script>
+
+</body>
+</html>
